@@ -113,6 +113,27 @@ const Admin = () => {
     }
   };
 
+  const seedProducts = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/seed-products?key=codedukan_seed_secret`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        alert(`${data.count || 'All'} CodeDukan products seeded successfully! Refresh to see them.`);
+        window.location.reload(); // Refresh to show new stats
+      } else {
+        alert('Failed to seed products: ' + data.message);
+      }
+    } catch (err) {
+      alert('Error seeding products: ' + (err as Error).message);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -135,6 +156,9 @@ const Admin = () => {
           <div className="flex gap-2">
             <Button onClick={seedAdmin} variant="outline">
               Seed Admin User
+            </Button>
+            <Button onClick={seedProducts} variant="outline">
+              Seed Products
             </Button>
             <Button onClick={logout} variant="destructive">
               Logout
