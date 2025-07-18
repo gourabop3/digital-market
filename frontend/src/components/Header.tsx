@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authAPI, setAuthToken } from "@/lib/api";
 import { Search, ShoppingCart, Menu, X, User, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +10,26 @@ import logoImage from "@/assets/codedukan-logo.png";
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount] = useState(0);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      authAPI.getProfile().then(res => {
+        if (res.success && res.data?.user) setUser(res.data.user);
+      }).catch(() => setUser(null));
+    } else {
+      setUser(null);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    await authAPI.logout();
+    setAuthToken(null);
+    setUser(null);
+    navigate("/");
+  };
 
   const navItems = [
     { label: "ALL PRODUCTS", href: "#products" },
@@ -64,10 +86,22 @@ export const Header = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="hidden md:flex">
-              <User className="h-4 w-4 mr-2" />
-              LOGIN
-            </Button>
+            {user ? (
+              <>
+                <span className="hidden md:flex items-center text-sm font-medium mr-2">
+                  {user.avatar && <img src={user.avatar} alt="avatar" className="h-6 w-6 rounded-full mr-2" />}
+                  {user.name}
+                </span>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  LOGOUT
+                </Button>
+              </>
+            ) : (
+              <Button variant="ghost" size="sm" className="hidden md:flex" onClick={() => navigate("/login")}> 
+                <User className="h-4 w-4 mr-2" />
+                LOGIN
+              </Button>
+            )}
             
             <Button variant="cart" size="sm" className="relative">
               <ShoppingCart className="h-4 w-4 mr-2" />
@@ -135,9 +169,9 @@ export const Header = () => {
                     {item.label}
                   </a>
                 ))}
-                <Button variant="ghost" size="sm" className="self-start mt-2 text-primary-foreground hover:text-yellow-300">
+                <Button variant="ghost" size="sm" className="self-start mt-2 text-primary-foreground hover:text-yellow-300" onClick={() => user ? handleLogout() : navigate("/login") }>
                   <User className="h-4 w-4 mr-2" />
-                  LOGIN
+                  {user ? "LOGOUT" : "LOGIN"}
                 </Button>
               </div>
             </div>
