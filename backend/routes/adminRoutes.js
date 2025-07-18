@@ -44,10 +44,10 @@ router.post('/seed-admin', async (req, res) => {
   try {
     const email = 'admin@codedukan.com';
     const password = 'admin123456';
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // DON'T hash the password manually - let the User model do it
     let user = await User.findOne({ email });
     if (user) {
-      user.password = hashedPassword;
+      user.password = password; // Raw password - will be hashed by pre-save middleware
       user.role = 'admin';
       user.isVerified = true;
       user.isActive = true;
@@ -57,7 +57,7 @@ router.post('/seed-admin', async (req, res) => {
       user = await User.create({
         name: 'Admin User',
         email,
-        password: hashedPassword,
+        password: password, // Raw password - will be hashed by pre-save middleware
         role: 'admin',
         isVerified: true,
         isActive: true
