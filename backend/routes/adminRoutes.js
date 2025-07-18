@@ -12,6 +12,7 @@ import {
 // TEMPORARY: Seed or update admin user (REMOVE AFTER USE)
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
+import seedProducts from '../scripts/seedProducts.js';
 
 const router = express.Router();
 
@@ -60,6 +61,20 @@ router.post('/seed-admin', async (req, res) => {
       });
     }
     res.json({ success: true, message: 'Admin user seeded/updated', email });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// TEMPORARY: Seed CodeDukan products
+router.post('/seed-products', async (req, res) => {
+  const SECRET_KEY = 'codedukan_seed_secret';
+  if (req.query.key !== SECRET_KEY) {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  try {
+    const products = await seedProducts(false); // Don't exit process
+    res.json({ success: true, message: 'CodeDukan products seeded successfully', count: products.length });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
