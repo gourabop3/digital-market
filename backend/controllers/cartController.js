@@ -23,7 +23,7 @@ export const getCartItems = asyncHandler(async (req, res) => {
 
     // Filter out inactive products
     cart.items = cart.items.filter(item => 
-      item.product && item.product.status === 'active'
+      item.product && item.product.isActive === true
     );
 
     // Recalculate total
@@ -58,7 +58,7 @@ export const addToCart = asyncHandler(async (req, res) => {
 
     // Validate product exists and is active
     const product = await Product.findById(productId);
-    if (!product || product.status !== 'active') {
+    if (!product || !product.isActive) {
       return res.status(404).json({
         success: false,
         message: 'Product not found or inactive'

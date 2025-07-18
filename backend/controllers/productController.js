@@ -11,32 +11,32 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Build filter object
-    const filter = { status: 'active' };
+    const filter = { isActive: true };
     
     if (req.query.category) {
       filter.category = req.query.category;
     }
     
     if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {};
-      if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
-      if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice);
+      filter.salePrice = {};
+      if (req.query.minPrice) filter.salePrice.$gte = parseFloat(req.query.minPrice);
+      if (req.query.maxPrice) filter.salePrice.$lte = parseFloat(req.query.maxPrice);
     }
 
     // Build sort object
     let sort = {};
     switch (req.query.sort) {
       case 'price_asc':
-        sort = { price: 1 };
+        sort = { salePrice: 1 };
         break;
-      case 'price_desc':
-        sort = { price: -1 };
+              case 'price_desc':
+          sort = { salePrice: -1 };
         break;
-      case 'name_asc':
-        sort = { name: 1 };
+              case 'name_asc':
+          sort = { title: 1 };
         break;
       case 'name_desc':
-        sort = { name: -1 };
+        sort = { title: -1 };
         break;
       default:
         sort = { createdAt: -1 };
@@ -75,7 +75,7 @@ export const getProductById = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).select('-downloadUrl');
 
-    if (!product || product.status !== 'active') {
+    if (!product || !product.isActive) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
@@ -185,7 +185,7 @@ export const getProductsByCategory = asyncHandler(async (req, res) => {
 
     const products = await Product.find({ 
       category: { $regex: category, $options: 'i' },
-      status: 'active'
+      isActive: true
     })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -194,7 +194,7 @@ export const getProductsByCategory = asyncHandler(async (req, res) => {
 
     const total = await Product.countDocuments({ 
       category: { $regex: category, $options: 'i' },
-      status: 'active'
+      isActive: true
     });
 
     res.json({
@@ -223,8 +223,8 @@ export const getFeaturedProducts = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 8;
 
     const products = await Product.find({ 
-      featured: true,
-      status: 'active'
+      isFeatured: true,
+      isActive: true
     })
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -263,9 +263,9 @@ export const searchProducts = asyncHandler(async (req, res) => {
     const searchRegex = new RegExp(q, 'i');
 
     const products = await Product.find({
-      status: 'active',
+      isActive: true,
       $or: [
-        { name: searchRegex },
+        { title: searchRegex },
         { description: searchRegex },
         { tags: { $in: [searchRegex] } },
         { category: searchRegex }
@@ -277,9 +277,9 @@ export const searchProducts = asyncHandler(async (req, res) => {
       .select('-downloadUrl');
 
     const total = await Product.countDocuments({
-      status: 'active',
+      isActive: true,
       $or: [
-        { name: searchRegex },
+        { title: searchRegex },
         { description: searchRegex },
         { tags: { $in: [searchRegex] } },
         { category: searchRegex }
