@@ -151,7 +151,7 @@ const Admin = () => {
         
         if (productsResponse.ok) {
           const productsData = await productsResponse.json();
-          setProducts(productsData.data?.products || []);
+          setProducts(productsData.data || []);
         }
 
         // Fetch orders
