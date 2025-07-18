@@ -48,7 +48,7 @@ router.post('/seed-admin', async (req, res) => {
     if (user) {
       user.password = hashedPassword;
       user.role = 'admin';
-      user.isEmailVerified = true;
+      user.isVerified = true;
       await user.save();
     } else {
       user = await User.create({
@@ -56,7 +56,7 @@ router.post('/seed-admin', async (req, res) => {
         email,
         password: hashedPassword,
         role: 'admin',
-        isEmailVerified: true
+        isVerified: true
       });
     }
     res.json({ success: true, message: 'Admin user seeded/updated', email });
