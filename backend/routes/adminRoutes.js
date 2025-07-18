@@ -44,12 +44,14 @@ router.post('/seed-admin', async (req, res) => {
   try {
     const email = 'admin@codedukan.com';
     const password = 'admin123456';
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     let user = await User.findOne({ email });
     if (user) {
       user.password = hashedPassword;
       user.role = 'admin';
       user.isVerified = true;
+      user.isActive = true;
+      user.name = 'Admin User';
       await user.save();
     } else {
       user = await User.create({
@@ -57,10 +59,19 @@ router.post('/seed-admin', async (req, res) => {
         email,
         password: hashedPassword,
         role: 'admin',
-        isVerified: true
+        isVerified: true,
+        isActive: true
       });
     }
-    res.json({ success: true, message: 'Admin user seeded/updated', email });
+    res.json({ 
+      success: true, 
+      message: 'Admin user created/updated successfully', 
+      email,
+      credentials: {
+        email: 'admin@codedukan.com',
+        password: 'admin123456'
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

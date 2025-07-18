@@ -21,7 +21,7 @@ const AdminSetup = () => {
     setMessage(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/api/admin/seed-admin?key=${secretKey}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/seed-admin?key=${secretKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
