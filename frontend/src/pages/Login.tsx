@@ -20,7 +20,12 @@ const Login = () => {
       const res = await authAPI.login({ email, password });
       if (res.success && res.data?.token) {
         setAuthToken(res.data.token);
-        navigate("/");
+        // Check if user is admin and redirect accordingly
+        if (res.data.user?.role === 'admin') {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       } else {
         setError(res.message || "Login failed");
       }
