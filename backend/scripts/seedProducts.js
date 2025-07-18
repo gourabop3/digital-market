@@ -39,7 +39,9 @@ const codedukanProducts = [
       "Basic JavaScript knowledge"
     ],
     tags: ["razorpay", "payment gateway", "nodejs", "react", "php"],
-    isFeatured: true
+    isFeatured: true,
+    downloadFiles: [],
+    downloadFiles: []
   },
   {
     title: "Stripe Payment Integration Complete Package",

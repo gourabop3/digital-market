@@ -297,8 +297,8 @@ const Admin = () => {
     }
   };
 
-  const deleteProduct = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const deleteProduct = async (productId: string, productTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${productTitle}"?\n\nThis action cannot be undone!`)) return;
     
     try {
       const token = localStorage.getItem('token');
@@ -314,13 +314,43 @@ const Admin = () => {
 
       if (response.ok) {
         alert('Product deleted successfully!');
-        window.location.reload();
+        // Remove from local state instead of full reload
+        setProducts(products.filter(p => p._id !== productId));
       } else {
         const data = await response.json();
         alert('Failed to delete product: ' + data.message);
       }
     } catch (err) {
       alert('Error deleting product: ' + (err as Error).message);
+    }
+  };
+
+  const toggleProductStatus = async (productId: string, currentStatus: boolean) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/products/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isActive: !currentStatus })
+      });
+
+      if (response.ok) {
+        alert(`Product ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
+        // Update local state
+        setProducts(products.map(p => 
+          p._id === productId ? { ...p, isActive: !currentStatus } : p
+        ));
+      } else {
+        const data = await response.json();
+        alert('Failed to update product: ' + data.message);
+      }
+    } catch (err) {
+      alert('Error updating product: ' + (err as Error).message);
     }
   };
 
@@ -530,9 +560,16 @@ const Admin = () => {
                               View
                             </Button>
                             <Button 
+                              variant={product.isActive ? "secondary" : "default"}
+                              size="sm"
+                              onClick={() => toggleProductStatus(product._id, product.isActive)}
+                            >
+                              {product.isActive ? 'Deactivate' : 'Activate'}
+                            </Button>
+                            <Button 
                               variant="destructive" 
                               size="sm"
-                              onClick={() => deleteProduct(product._id)}
+                              onClick={() => deleteProduct(product._id, product.title)}
                             >
                               Delete
                             </Button>
@@ -711,8 +748,78 @@ const Admin = () => {
                 <CardTitle>Order Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  Order management functionality coming soon...
+                <div className="space-y-4">
+                  {orders.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      No orders found yet. Orders will appear here when customers make purchases.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.map((order) => (
+                        <div key={order._id} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h3 className="font-medium">Order #{order.orderNumber}</h3>
+                              <p className="text-sm text-gray-500">
+                                Customer: {order.user.name} ({order.user.email})
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                Date: {new Date(order.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-bold">₹{order.totalAmount.toLocaleString()}</div>
+                              <div className="flex gap-2">
+                                <Badge variant={
+                                  order.status === 'completed' ? 'default' :
+                                  order.status === 'processing' ? 'secondary' :
+                                  order.status === 'cancelled' ? 'destructive' : 'outline'
+                                }>
+                                  {order.status}
+                                </Badge>
+                                <Badge variant={
+                                  order.paymentStatus === 'paid' ? 'default' :
+                                  order.paymentStatus === 'failed' ? 'destructive' : 'outline'
+                                }>
+                                  {order.paymentStatus}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="border-t pt-4">
+                            <h4 className="font-medium mb-2">Items:</h4>
+                            {order.items.map((item, index) => (
+                              <div key={index} className="flex justify-between text-sm py-1">
+                                <span>{item.product.title} x {item.quantity}</span>
+                                <span>₹{(item.price * item.quantity).toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="border-t pt-4 flex gap-2">
+                            <Select 
+                              value={order.status} 
+                              onValueChange={(value) => updateOrderStatus(order._id, value)}
+                            >
+                              <SelectTrigger className="w-40">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="processing">Processing</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button variant="outline" size="sm">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
