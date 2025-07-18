@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Admin Login Debug Tool</h1>
+        <p>Use this tool to debug your admin login issue</p>
+        
+        <div>
+            <h3>Backend URL:</h3>
+            <input type="text" id="backendUrl" placeholder="Enter your backend URL (e.g., https://your-backend.onrender.com)" value="">
+            <small>Enter your Render backend URL (without /api)</small>
+        </div>
+
+        <div>
+            <h3>Test Steps:</h3>
+            <button onclick="testHealth()">1. Test Backend Health</button>
+            <button onclick="createAdmin()">2. Create Admin User</button>
+            <button onclick="testLogin()">3. Test Admin Login</button>
+            <button onclick="testAdminAccess()">4. Test Admin Panel Access</button>
+        </div>
+
+        <div id="result" class="result info" style="display: none;"></div>
+    </div>
+
+    <script>
+        const adminCredentials = {
+            email: 'admin@codedukan.com',
+            password: 'admin123456'
+        };
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+
+        function getBackendUrl() {
+            const url = document.getElementById('backendUrl').value.trim();
+            if (!url) {
+                showResult('Please enter your backend URL first!', 'error');
+                return null;
+            }
+            return url.endsWith('/') ? url.slice(0, -1) : url;
+        }
+
+        async function testHealth() {
+            const backendUrl = getBackendUrl();
+            if (!backendUrl) return;
+
+            showResult('Testing backend health...', 'info');
+            
+            try {
+                const response = await fetch(`${backendUrl}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ Backend is healthy!\n\nResponse: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(`❌ Backend health check failed!\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Cannot reach backend!\n\nError: ${error.message}\n\nPlease check:\n1. Backend URL is correct\n2. Backend is deployed and running\n3. CORS is configured properly`, 'error');
+            }
+        }
+
+        async function createAdmin() {
+            const backendUrl = getBackendUrl();
+            if (!backendUrl) return;
+
+            showResult('Creating admin user...', 'info');
+            
+            try {
+                const response = await fetch(`${backendUrl}/api/admin/seed-admin?key=codedukan_seed_secret`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showResult(`✅ Admin user created successfully!\n\nEmail: ${adminCredentials.email}\nPassword: ${adminCredentials.password}\n\nResponse: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(`❌ Failed to create admin user!\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Error creating admin user!\n\nError: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const backendUrl = getBackendUrl();
+            if (!backendUrl) return;
+
+            showResult('Testing admin login...', 'info');
+            
+            try {
+                const response = await fetch(`${backendUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(adminCredentials)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Store token for next test
+                    window.adminToken = data.data.token;
+                    showResult(`✅ Admin login successful!\n\nUser Role: ${data.data.user.role}\nToken: ${data.data.token.substring(0, 50)}...\n\nFull Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(`❌ Admin login failed!\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}\n\nPossible issues:\n1. Admin user doesn't exist\n2. Wrong credentials\n3. User is not active/verified`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Login request failed!\n\nError: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminAccess() {
+            const backendUrl = getBackendUrl();
+            if (!backendUrl) return;
+
+            if (!window.adminToken) {
+                showResult('❌ No admin token! Please run "Test Admin Login" first.', 'error');
+                return;
+            }
+
+            showResult('Testing admin panel access...', 'info');
+            
+            try {
+                const response = await fetch(`${backendUrl}/api/admin/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.adminToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showResult(`✅ Admin panel access successful!\n\nDashboard Data: ${JSON.stringify(data, null, 2)}\n\n🎉 Your admin login is working! You should be able to access /admin now.`, 'success');
+                } else {
+                    showResult(`❌ Admin panel access denied!\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}\n\nPossible issues:\n1. User doesn't have admin role\n2. Token is invalid\n3. Admin middleware not working`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Admin access request failed!\n\nError: ${error.message}`, 'error');
+            }
+        }
+
+        // Set default backend URL if on localhost
+        if (window.location.hostname === 'localhost') {
+            document.getElementById('backendUrl').value = 'http://localhost:5000';
+        }
+    </script>
+</body>
+</html>
