@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authAPI, setAuthToken } from "@/lib/api";
+import { authAPI, setAuthToken, cartAPI } from "@/lib/api";
 import { Search, ShoppingCart, Menu, X, User, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import logoImage from "@/assets/codedukan-logo.png";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
 
@@ -19,8 +19,12 @@ export const Header = () => {
       authAPI.getProfile().then(res => {
         if (res.success && res.data?.user) setUser(res.data.user);
       }).catch(() => setUser(null));
+      cartAPI.getCart().then(res => {
+        if (res.success && res.data?.cart) setCartCount(res.data.cart.totalItems);
+      }).catch(() => setCartCount(0));
     } else {
       setUser(null);
+      setCartCount(0);
     }
   }, []);
 
