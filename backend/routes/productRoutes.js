@@ -1,36 +1,28 @@
 import express from 'express';
+import {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getProductsByCategory,
+  getFeaturedProducts,
+  searchProducts
+} from '../controllers/productController.js';
+import { protect, admin } from '../middleware/auth.js';
+
 const router = express.Router();
 
-// GET /api/products - Get all products
-router.get('/', async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      message: 'Products endpoint working',
-      data: []
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-});
+// Public routes
+router.get('/', getAllProducts);
+router.get('/featured', getFeaturedProducts);
+router.get('/search', searchProducts);
+router.get('/category/:category', getProductsByCategory);
+router.get('/:id', getProductById);
 
-// GET /api/products/:id - Get single product
-router.get('/:id', async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      message: 'Single product endpoint working',
-      data: null
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-});
+// Protected routes (Admin only)
+router.post('/', protect, admin, createProduct);
+router.put('/:id', protect, admin, updateProduct);
+router.delete('/:id', protect, admin, deleteProduct);
 
 export default router;

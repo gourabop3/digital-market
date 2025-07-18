@@ -1,35 +1,22 @@
 import express from 'express';
+import {
+  getCartItems,
+  addToCart,
+  updateCartItem,
+  removeFromCart,
+  clearCart
+} from '../controllers/cartController.js';
+import { protect } from '../middleware/auth.js';
+
 const router = express.Router();
 
-// GET /api/cart - Get cart items
-router.get('/', async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      message: 'Cart endpoint working',
-      data: []
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-});
+// All cart routes require authentication
+router.use(protect);
 
-// POST /api/cart - Add to cart
-router.post('/', async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      message: 'Add to cart endpoint working'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-});
+router.get('/', getCartItems);
+router.post('/', addToCart);
+router.put('/:productId', updateCartItem);
+router.delete('/:productId', removeFromCart);
+router.delete('/', clearCart);
 
 export default router;
