@@ -138,7 +138,8 @@ const Admin = () => {
         
         if (usersResponse.ok) {
           const usersData = await usersResponse.json();
-          setUsers(usersData.data || []);
+          // Support both array and object response for users
+          setUsers(Array.isArray(usersData.data) ? usersData.data : usersData.data?.users || []);
         }
 
         // Fetch products
