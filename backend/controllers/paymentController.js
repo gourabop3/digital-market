@@ -5,11 +5,14 @@ import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay (only if keys are provided)
+let razorpay = null;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+}
 
 // @desc    Create Razorpay order
 // @route   POST /api/orders/create-razorpay-order
@@ -77,6 +80,10 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
   };
 
   try {
+    if (!razorpay) {
+      res.status(500);
+      throw new Error('Payment gateway not configured');
+    }
     const razorpayOrder = await razorpay.orders.create(razorpayOrderOptions);
     
     // Update order with Razorpay order ID
@@ -156,6 +163,10 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   }
 
   try {
+    if (!razorpay) {
+      res.status(500);
+      throw new Error('Payment gateway not configured');
+    }
     // Verify payment with Razorpay
     const payment = await razorpay.payments.fetch(razorpay_payment_id);
     
@@ -289,6 +300,10 @@ export const createRefund = asyncHandler(async (req, res) => {
   const refundAmount = amount || order.totalAmount;
 
   try {
+    if (!razorpay) {
+      res.status(500);
+      throw new Error('Payment gateway not configured');
+    }
     const refund = await razorpay.payments.refund(order.razorpayPaymentId, {
       amount: Math.round(refundAmount * 100), // Convert to paise
       notes: {

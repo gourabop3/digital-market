@@ -14,23 +14,23 @@ const usersData = [
   {
     name: 'Admin User',
     email: process.env.ADMIN_EMAIL || 'admin@codedukan.com',
-    password: process.env.ADMIN_PASSWORD || 'admin123',
+    password: process.env.ADMIN_PASSWORD || 'admin123456',
     role: 'admin',
-    isEmailVerified: true
+    isVerified: true
   },
   {
     name: 'John Doe',
     email: 'john@example.com',
     password: 'password123',
     role: 'user',
-    isEmailVerified: true
+    isVerified: true
   },
   {
     name: 'Jane Smith',
     email: 'jane@example.com',
     password: 'password123',
     role: 'user',
-    isEmailVerified: true
+    isVerified: true
   }
 ];
 
@@ -216,7 +216,7 @@ const seedData = async () => {
     console.log('✅ Database seeded successfully!');
     console.log('\n📧 Admin credentials:');
     console.log(`Email: ${process.env.ADMIN_EMAIL || 'admin@codedukan.com'}`);
-    console.log(`Password: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
+    console.log(`Password: ${process.env.ADMIN_PASSWORD || 'admin123456'}`);
     
     process.exit(0);
   } catch (error) {
