@@ -3,6 +3,9 @@ import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { cartAPI } from "@/lib/api";
+import { toast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -31,8 +34,21 @@ export const ProductCard = ({
 }: ProductCardProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
 
   const discountPercentage = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+
+  const handleAddToCart = async () => {
+    setAddLoading(true);
+    try {
+      await cartAPI.addToCart(id, 1);
+      toast({ title: "Added to cart!", description: title });
+    } catch (err: any) {
+      toast({ title: "Error", description: err?.response?.data?.message || err.message || "Failed to add to cart", variant: "destructive" });
+    } finally {
+      setAddLoading(false);
+    }
+  };
 
   return (
     <Card className="group relative overflow-hidden border-0 shadow-card hover:shadow-glow transition-all duration-500 hover:-translate-y-2 bg-card">
@@ -101,7 +117,7 @@ export const ProductCard = ({
 
         {/* Title */}
         <h3 className="font-semibold text-sm mb-3 line-clamp-2 leading-tight hover:text-primary transition-colors">
-          {title}
+          <Link to={`/product/${id}`}>{title}</Link>
         </h3>
 
         {/* Rating */}
@@ -140,9 +156,9 @@ export const ProductCard = ({
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full group-hover:bg-gradient-primary" size="sm">
+        <Button className="w-full group-hover:bg-gradient-primary" size="sm" onClick={handleAddToCart} disabled={addLoading}>
           <ShoppingCart className="h-4 w-4 mr-2" />
-          Add to Cart
+          {addLoading ? "Adding..." : "Add to Cart"}
         </Button>
       </CardFooter>
     </Card>
