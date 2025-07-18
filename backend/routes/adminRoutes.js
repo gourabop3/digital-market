@@ -105,4 +105,37 @@ router.post('/seed-products', async (req, res) => {
   }
 });
 
+// TEMPORARY: Debug products in database
+router.get('/debug-products', async (req, res) => {
+  try {
+    const Product = (await import('../models/Product.js')).default;
+    const allProducts = await Product.find({}).limit(5);
+    const activeProducts = await Product.find({ isActive: true }).limit(5);
+    const totalCount = await Product.countDocuments({});
+    const activeCount = await Product.countDocuments({ isActive: true });
+    
+    res.json({ 
+      success: true, 
+      totalCount, 
+      activeCount, 
+      sampleProducts: allProducts.map(p => ({
+        _id: p._id,
+        title: p.title,
+        isActive: p.isActive,
+        category: p.category,
+        salePrice: p.salePrice
+      })),
+      sampleActiveProducts: activeProducts.map(p => ({
+        _id: p._id,
+        title: p.title,
+        isActive: p.isActive,
+        category: p.category,
+        salePrice: p.salePrice
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;
