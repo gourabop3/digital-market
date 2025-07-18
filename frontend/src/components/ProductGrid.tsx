@@ -22,7 +22,7 @@ export const ProductGrid = () => {
       productsAPI.getCategories()
     ])
       .then(([productRes, categoryRes]) => {
-        setProducts(productRes.data?.products || []);
+        setProducts(productRes.data || []);
         setCategories([
           { id: "all", name: "All Products", count: productRes.data?.pagination?.total || 0 },
           ...((categoryRes.data?.categories || []).map((cat: any) => ({
