@@ -107,7 +107,7 @@ export const Header = () => {
               </Button>
             )}
             
-            <Button variant="cart" size="sm" className="relative">
+            <Button variant="cart" size="sm" className="relative" onClick={() => navigate("/cart") }>
               <ShoppingCart className="h-4 w-4 mr-2" />
               CART / ₹0.00
               {cartCount > 0 && (
@@ -116,6 +116,8 @@ export const Header = () => {
                 </Badge>
               )}
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/checkout")}>Checkout</Button>
+            {user && <Button variant="ghost" size="sm" onClick={() => navigate("/orders")}>Orders</Button>}
 
             {/* Mobile Menu Toggle */}
             <Button

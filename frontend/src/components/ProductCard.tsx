@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cartAPI } from "@/lib/api";
 import { toast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -116,7 +117,7 @@ export const ProductCard = ({
 
         {/* Title */}
         <h3 className="font-semibold text-sm mb-3 line-clamp-2 leading-tight hover:text-primary transition-colors">
-          {title}
+          <Link to={`/product/${id}`}>{title}</Link>
         </h3>
 
         {/* Rating */}
