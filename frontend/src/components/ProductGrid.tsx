@@ -22,9 +22,12 @@ export const ProductGrid = () => {
       productsAPI.getCategories()
     ])
       .then(([productRes, categoryRes]) => {
-        setProducts(productRes.data || []);
+        // Fix: extract products and pagination from productRes.data
+        const products = productRes.data?.products || [];
+        const pagination = productRes.data?.pagination || {};
+        setProducts(products);
         setCategories([
-          { id: "all", name: "All Products", count: productRes.data?.pagination?.total || 0 },
+          { id: "all", name: "All Products", count: pagination.total || products.length },
           ...((categoryRes.data?.categories || []).map((cat: any) => ({
             id: cat.name.toLowerCase().replace(/\s+/g, '-'),
             name: cat.name,
