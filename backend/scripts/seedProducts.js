@@ -39,13 +39,7 @@ const codedukanProducts = [
       "Basic JavaScript knowledge"
     ],
     tags: ["razorpay", "payment gateway", "nodejs", "react", "php"],
-    isFeatured: true,
-    downloadFiles: [
-      { name: "Frontend React App", url: "/downloads/razorpay-frontend.zip", size: "45 MB", type: "zip" },
-      { name: "Backend Node.js API", url: "/downloads/razorpay-backend.zip", size: "25 MB", type: "zip" },
-      { name: "PHP Version", url: "/downloads/razorpay-php.zip", size: "15 MB", type: "zip" },
-      { name: "Documentation", url: "/downloads/razorpay-docs.pdf", size: "5 MB", type: "pdf" }
-    ]
+    isFeatured: true
   },
   {
     title: "Stripe Payment Integration Complete Package",
