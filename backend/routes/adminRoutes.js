@@ -91,4 +91,18 @@ router.post('/seed-products', async (req, res) => {
   }
 });
 
+// TEMPORARY: Seed CodeDukan products
+router.post('/seed-products', async (req, res) => {
+  const SECRET_KEY = 'codedukan_seed_secret';
+  if (req.query.key !== SECRET_KEY) {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  try {
+    const products = await seedProducts(false); // Don't exit process
+    res.json({ success: true, message: 'CodeDukan products seeded successfully', count: products.length });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;
