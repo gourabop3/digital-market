@@ -16,21 +16,21 @@ const usersData = [
     email: process.env.ADMIN_EMAIL || 'admin@codedukan.com',
     password: process.env.ADMIN_PASSWORD || 'admin123',
     role: 'admin',
-    isEmailVerified: true
+    isVerified: true
   },
   {
     name: 'John Doe',
     email: 'john@example.com',
     password: 'password123',
     role: 'user',
-    isEmailVerified: true
+    isVerified: true
   },
   {
     name: 'Jane Smith',
     email: 'jane@example.com',
     password: 'password123',
     role: 'user',
-    isEmailVerified: true
+    isVerified: true
   }
 ];
 
