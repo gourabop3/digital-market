@@ -52,12 +52,14 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 
     res.json({
       success: true,
-      data: products,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
+      data: {
+        products,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
       }
     });
   } catch (error) {
