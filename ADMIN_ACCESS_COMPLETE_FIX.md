@@ -47,7 +47,7 @@ JWT_SECRET=your-secure-jwt-secret
 #### **Step 2: Update Frontend Environment**
 In your Render frontend service, set:
 ```bash
-VITE_API_URL=https://your-backend-url.onrender.com
+VITE_API_URL=https://your-backend-url.onrender.com/api
 ```
 
 #### **Step 3: Deploy the Updated Code**
